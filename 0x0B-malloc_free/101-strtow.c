@@ -1,84 +1,70 @@
 #include <stdlib.h>
-
+#include <stdio.h>
+#include "main.h"
 /**
- * strtow - char
- * @str: pointer to string params
- * Return: char
- */
+*words - count words in a string
+*@st: pointer to string
+*Return: number of words (n)
+*/
+int words(char *st)
+{
+	int i = 0, n = 0;
 
+	while (st[i])
+	{
+		while (st[i] && st[i] == ' ') /*count positions with spaces*/
+			++i;
+		if (st[i] == '\0')
+			break;
+		while (st[i] && st[i] != ' ')
+			++i;
+		++n;
+	}
+	return (n);
+}
+/**
+*strtow - split str in array of words
+*@str: string with words separate for spaces
+*Return: pointer to array of strings
+*/
 char **strtow(char *str)
 {
-	int i = 0, j = 0, k = 0;
-	int len = 0, count = 0;
-	char **f, *col;
+	int i, j, k, nw, start, end;
+	char **pt;
 
-	if (!str || !*str)
-	{
+	if (str == NULL || *str == '\0')
 		return (NULL);
-	}
-
-	while (*(str + i))
-	{
-		if (*(str + i) != ' ')
-		{
-			if (*(str + i + 1) == ' ' || *(str + i + 1) == 0)
-			{
-				count += 1;
-			}
-		}
-		i++;
-	}
-
-	if (count == 0)
-	{
+	nw = words(str);
+	if (nw == 0)
 		return (NULL);
-	}
-	count += 1;
-	f = malloc(sizeof(char *) * count);
-
-	if (!f)
-	{
+	++nw;
+	pt = (char **)malloc(nw * sizeof(char *));
+	if (pt == NULL)
 		return (NULL);
-	}
-	i = 0;
-
-	while (*str)
+	i = j = 0;
+	while (str[i])
 	{
-		while (*str == ' ' && *str)
+		for (; str[i] && str[i] == ' '; ++i)
+			;
+		if (str[i] == '\0')
+			break;
+		start = i;
+		for (; str[i] && str[i] != ' '; ++i)
+			;
+		end = i;
+		pt[j] = (char *) malloc((end - start  + 1) * sizeof(char));
+		if (pt[j] == NULL)
 		{
-			str++;
-		}
-		len = 0;
-
-		while (*(str + len) != ' ' && *(str + len))
-		{
-			len += 1;
-		}
-		len += 1;
-		col = malloc(sizeof(char) * len);
-
-		if (!col)
-		{
-			for (k = j - 1; k >= 0; k--)
-			{
-				free(f[k]);
-			}
-			free(f);
+			free(pt[j]);
+			while (j)
+				free(pt[--j]);
+			free(pt);
 			return (NULL);
 		}
-
-		for (k = 0; k < (len - 1);  k++)
-		{
-			*(col + k) = *(str++);
-		}
-		*(col + k) = '\0';
-		*(f + j) = col;
-
-		if (j < (count - 1))
-		{
-			j++;
-		}
+		for (k = 0; k < (end - start); ++k)
+			pt[j][k] = str[start + k];
+		pt[j++][k] = '\0';
 	}
-	*(f + j) = NULL;
-	return (f);
-} /*yes*/
+	pt[j] = NULL;
+	return (pt);
+}
